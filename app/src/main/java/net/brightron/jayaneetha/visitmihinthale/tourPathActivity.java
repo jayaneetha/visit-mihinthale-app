@@ -10,20 +10,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class tourPathActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_tour_path);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
@@ -35,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_tour_path, menu);
         return true;
     }
 
@@ -58,30 +52,14 @@ public class MainActivity extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
-        ArrayAdapter<String> mMainListAdapter;
+
         public PlaceholderFragment() {
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-            String list_main_data[] = {
-                    "Tour Paths",
-                    "Lodginig & Dining",
-                    "Governmental Organizations"
-            };
-
-            List<String> list_main = new ArrayList<String>(Arrays.asList(list_main_data));
-            mMainListAdapter = new ArrayAdapter<String>(
-                    getActivity(),
-                    R.layout.list_item_main,
-                    R.id.list_item_main_textview,
-                    list_main);
-
-            ListView main_listview = (ListView) rootView.findViewById(R.id.listview_main);
-            main_listview.setAdapter(mMainListAdapter);
+            View rootView = inflater.inflate(R.layout.fragment_tour_path, container, false);
             return rootView;
         }
     }
