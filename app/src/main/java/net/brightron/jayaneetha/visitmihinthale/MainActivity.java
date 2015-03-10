@@ -1,6 +1,5 @@
 package net.brightron.jayaneetha.visitmihinthale;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -11,13 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -60,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
-        ArrayAdapter<String> mMainListAdapter;
+
         public PlaceholderFragment() {
         }
 
@@ -68,30 +60,6 @@ public class MainActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-            String list_main_data[] = {
-                    "Tour Paths",
-                    "Lodginig & Dining",
-                    "Governmental Organizations"
-            };
-
-            List<String> list_main = new ArrayList<String>(Arrays.asList(list_main_data));
-            mMainListAdapter = new ArrayAdapter<String>(
-                    getActivity(),
-                    R.layout.list_item_main,
-                    R.id.list_item_main_textview,
-                    list_main);
-
-            ListView main_listview = (ListView) rootView.findViewById(R.id.listview_main);
-            main_listview.setAdapter(mMainListAdapter);
-            main_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    String selectedItem = mMainListAdapter.getItem(i);
-                    Intent intent = new Intent(getActivity(), tourPathActivity.class);
-                    startActivity(intent);
-                }
-            });
             return rootView;
         }
     }
