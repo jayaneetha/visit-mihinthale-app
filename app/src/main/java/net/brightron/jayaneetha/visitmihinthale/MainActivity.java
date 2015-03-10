@@ -1,5 +1,6 @@
 package net.brightron.jayaneetha.visitmihinthale;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -82,6 +84,14 @@ public class MainActivity extends ActionBarActivity {
 
             ListView main_listview = (ListView) rootView.findViewById(R.id.listview_main);
             main_listview.setAdapter(mMainListAdapter);
+            main_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    String selectedItem = mMainListAdapter.getItem(i);
+                    Intent intent = new Intent(getActivity(), tourPathActivity.class);
+                    startActivity(intent);
+                }
+            });
             return rootView;
         }
     }

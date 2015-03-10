@@ -6,4 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_tour_path">Tour Path</string>
 
+    <string name="tour_path_starting_at">I am Starting at: </string>
+
 </resources>
