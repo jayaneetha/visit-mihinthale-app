@@ -4,5 +4,45 @@
     <string name="app_name">Visit Mihinthale</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string-array name="listview_ex">
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+        <item>one</item>
+        <item>two</item>
+    </string-array>
+    <string-array name="listview_ex1">
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+        <item>three</item>
+    </string-array>
 
 </resources>
