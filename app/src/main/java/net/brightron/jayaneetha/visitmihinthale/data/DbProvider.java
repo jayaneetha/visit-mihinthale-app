@@ -4,13 +4,12 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.graphics.SweepGradient;
 import android.net.Uri;
 
 /**
- * Created by Admin on 3/10/15.
+ * Created by Admin on 3/11/15.
  */
 public class DbProvider extends ContentProvider {
 
@@ -18,32 +17,62 @@ public class DbProvider extends ContentProvider {
     private DbHelper mOpenHelper;
 
     private static final int ROUTES = 100;
-    static final int PLACES = 300;
+    private static final int ROUTE_STARTING_FROM_STARTING_PLACE = 102;
+    private static final int STARTING_PLACES = 101;
+    private static final int PLACES = 200;
+    private static final int PLACE = 201;
 
-    private static final SQLiteQueryBuilder sPlacesByRoutesQueryBuilder;
+    private static UriMatcher buildUriMatcher() {
+
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = DbContract.CONTENT_AUTHORITY;
+
+        matcher.addURI(authority, DbContract.PATH_PLACES, PLACES);
+        matcher.addURI(authority, DbContract.PATH_PLACES + "/#", PLACE);
+
+        matcher.addURI(authority, DbContract.PATH_ROUTES, ROUTES);
+        matcher.addURI(authority, DbContract.PATH_ROUTES + "/" + DbContract.PATH_STARTING_PLACES, STARTING_PLACES);
+        matcher.addURI(authority, DbContract.PATH_ROUTES + "/#", ROUTE_STARTING_FROM_STARTING_PLACE);
+
+        return matcher;
+    }
+
+    private static final SQLiteQueryBuilder sRoutesByStartingPlaceQueryBuilder;
+    private static final SQLiteQueryBuilder sStartingPlaces;
+
 
     static {
-        sPlacesByRoutesQueryBuilder = new SQLiteQueryBuilder();
-        sPlacesByRoutesQueryBuilder.setTables(
-                DbContract.RoutesEntry.TABLE_NAME + " INNER JOIN " + DbContract.PlacesEntry.TABLE_NAME + " ON " +
-                        DbContract.RoutesEntry.TABLE_NAME +
-                        "." + DbContract.RoutesEntry.COLUMN_PLACE +
-                        " = " + DbContract.PlacesEntry.TABLE_NAME +
-                        "." + DbContract.PlacesEntry._ID
+        sRoutesByStartingPlaceQueryBuilder = new SQLiteQueryBuilder();
+        sStartingPlaces = new SQLiteQueryBuilder();
+        //FROM routes INNER JOIN places ON routes.place = places.id
+        sRoutesByStartingPlaceQueryBuilder.setTables(
+                DbContract.RoutesEntry.TABLE_NAME + " INNER JOIN " +
+                        DbContract.PlacesEntry.TABLE_NAME + " ON " +
+                        DbContract.RoutesEntry.TABLE_NAME + "." + DbContract.RoutesEntry.COLUMN_PLACE +
+                        " = " +
+                        DbContract.PlacesEntry.TABLE_NAME + "." + DbContract.PlacesEntry._ID
+        );
+        //FROM routes INNER JOIN places ON routes.srating_at = places.id
+        sStartingPlaces.setTables(
+                DbContract.RoutesEntry.TABLE_NAME + " INNER JOIN " +
+                        DbContract.PlacesEntry.TABLE_NAME + " ON " +
+                        DbContract.RoutesEntry.TABLE_NAME + "." + DbContract.RoutesEntry.COLUMN_STARTING_AT +
+                        " = " +
+                        DbContract.PlacesEntry.TABLE_NAME + "." + DbContract.PlacesEntry._ID
         );
     }
 
-    private static final String sRoutesSelection = DbContract.RoutesEntry.TABLE_NAME +
-            "." + DbContract.RoutesEntry.COLUMN_STARTING_AT + " = ? ";
+    private static final String sPlaceSelection =
+            DbContract.PlacesEntry.TABLE_NAME + "." + DbContract.PlacesEntry._ID + " = ? ";
 
-    private Cursor getPlacesByRoutes(Uri uri, String[] projection, String sortOrder) {
-        String starting_at = DbContract.RoutesEntry.getRouteStartAtFromUri(uri);
-        String[] selectionArgs = new String[]{starting_at};
-        String selection = sRoutesSelection;
 
-        return sPlacesByRoutesQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+    private Cursor getPlacesOfRoutes(Uri uri, String[] projection, String[] selectionArgs, String sortOrder) {
+
+        String starting_place = DbContract.RoutesEntry.getStartingAtFromUri(uri);
+
+        return sRoutesByStartingPlaceQueryBuilder.query(mOpenHelper.getWritableDatabase(),
                 projection,
-                selection,
+                sPlaceSelection,
                 selectionArgs,
                 null,
                 null,
@@ -51,12 +80,18 @@ public class DbProvider extends ContentProvider {
         );
     }
 
-    static UriMatcher buildUriMatcher() {
-        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = DbContract.CONTENT_AUTHORITY;
-        matcher.addURI(authority, DbContract.PATH_ROUTES, ROUTES);
-        matcher.addURI(authority, DbContract.PATH_PLACES, PLACES);
-        return matcher;
+
+    private Cursor getStartingPlaces(String[] projection, String sortOrder) {
+
+        return sStartingPlaces.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                null,
+                null,
+                DbContract.PlacesEntry.COLUMN_PLACE_NAME,
+                null,
+                sortOrder
+        );
+
     }
 
     @Override
@@ -67,76 +102,83 @@ public class DbProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Cursor retCursor = null;
 
+        Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
-            case ROUTES: {
-                retCursor = getPlacesByRoutes(uri, projection, sortOrder);
+            case ROUTES:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        DbContract.RoutesEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
-            }
+            case PLACES:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        DbContract.PlacesEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null
+                        , null,
+                        sortOrder
+                );
+                break;
+            case PLACE:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        DbContract.PlacesEntry.TABLE_NAME,
+                        projection,
+                        sPlaceSelection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
 
+            case STARTING_PLACES:
+                retCursor = getStartingPlaces(projection, sortOrder);
+                break;
+            case ROUTE_STARTING_FROM_STARTING_PLACE:
+                retCursor = getPlacesOfRoutes(uri, projection, selectionArgs, sortOrder);
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown Uri " + uri);
         }
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
     }
 
     @Override
     public String getType(Uri uri) {
         final int match = sUriMatcher.match(uri);
+
         switch (match) {
             case ROUTES:
                 return DbContract.RoutesEntry.CONTENT_TYPE;
             case PLACES:
                 return DbContract.PlacesEntry.CONTENT_TYPE;
+            case PLACE:
+                return DbContract.RoutesEntry.CONTENT_ITEM_TYPE;
+            case STARTING_PLACES:
+                return DbContract.RoutesEntry.CONTENT_TYPE;
+            case ROUTE_STARTING_FROM_STARTING_PLACE:
+                return DbContract.RoutesEntry.CONTENT_TYPE;
             default:
-                throw new UnsupportedOperationException("unknown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown Uri" + uri);
         }
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
-        Uri returnUri;
-        switch (match) {
-            case PLACES: {
-                long _id = db.insert(DbContract.PlacesEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0) {
-                    returnUri = DbContract.PlacesEntry.buildPlacesUri(_id);
-                } else {
-                    throw new SQLException("Failed to insert row into " + uri);
-                }
-                break;
-            }
-            case ROUTES: {
-                long _id = db.insert(DbContract.RoutesEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0) {
-                    returnUri = DbContract.RoutesEntry.buildRoutesUri(_id);
-                } else {
-                    throw new SQLException("Failed to insert row into " + uri);
-                }
-                break;
-            }
-            default:
-                throw new UnsupportedOperationException("unknown uri: " + uri);
-        }
-        getContext().getContentResolver().notifyChange(uri, null);
-        return returnUri;
+        return null;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
-        int rowsDeleted;
-        // this makes delete all rows return the number of rows deleted
-        if (null == selection) selection = "1";
-        switch (match) {
-            case PLACES:
-                rowsDeleted = db.delete(DbContract.PlacesEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-
-        }
+    public int delete(Uri uri, String s, String[] strings) {
         return 0;
     }
 
