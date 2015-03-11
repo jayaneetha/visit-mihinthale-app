@@ -2,7 +2,7 @@
 <resources>
 
     <string name="content_authority">net.brightron.jayaneetha.visitmihinthale</string>
-
+    <string name="toastEx">Toast</string>
     <string name="app_name">Visit Mihinthale</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -46,5 +46,6 @@
         <item>three</item>
         <item>three</item>
     </string-array>
+    <string name="title_activity_detail">DetailActivity</string>
 
 </resources>
