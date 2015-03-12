@@ -6,46 +6,8 @@
     <string name="app_name">Visit Mihinthale</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string-array name="listview_ex">
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-        <item>one</item>
-        <item>two</item>
-    </string-array>
-    <string-array name="listview_ex1">
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-        <item>three</item>
-    </string-array>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="action_open_map">Open in map</string>
+
+    <string name="title_activity_detail">Details</string>
 
 </resources>

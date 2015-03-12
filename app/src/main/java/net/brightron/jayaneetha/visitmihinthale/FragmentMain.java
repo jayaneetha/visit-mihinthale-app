@@ -2,6 +2,7 @@ package net.brightron.jayaneetha.visitmihinthale;
 
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,15 +11,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -26,6 +22,7 @@ import java.util.List;
 public class FragmentMain extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LOADER = 0;
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
 
     private static final String[] PLACES_COLUMNS = {
@@ -48,6 +45,12 @@ public class FragmentMain extends Fragment implements LoaderManager.LoaderCallba
     PlacesAdapter mPlacesAdapter;
 
     public FragmentMain() {
+
+
+    }
+
+    public interface Callback {
+        public void onItemSelected(Uri uri);
     }
 
     @Override
@@ -55,7 +58,7 @@ public class FragmentMain extends Fragment implements LoaderManager.LoaderCallba
                              Bundle savedInstanceState) {
 
         Uri placesUri = PlacesContract.PlacesEntry.CONTENT_URI;
-        Cursor cursor = getActivity().getContentResolver().query(placesUri, null, null, null, null);
+        final Cursor cursor = getActivity().getContentResolver().query(placesUri, null, null, null, null);
         mPlacesAdapter = new PlacesAdapter(getActivity(), cursor, 0);
         /*
         String[] data = {
@@ -76,13 +79,32 @@ public class FragmentMain extends Fragment implements LoaderManager.LoaderCallba
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_main);
         listView.setAdapter(mPlacesAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Cursor itemCursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (itemCursor != null) {
+                    ((Callback) getActivity()).onItemSelected(PlacesContract.PlacesEntry.buildPlaceUri(itemCursor.getLong(COL_PLACE_ID)));
+                    /*Intent intent = new Intent(getActivity(),DetailActivity.class)
+                            .setData(PlacesContract.PlacesEntry.buildPlaceUri(itemCursor.getLong(COL_PLACE_ID)));
+                    startActivity(intent);*/
+                }
+            }
+        });
 
         return rootView;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(getActivity(), PlacesContract.PlacesEntry.CONTENT_URI, PLACES_COLUMNS, null, null, null);
+        return new CursorLoader(
+                getActivity(),
+                PlacesContract.PlacesEntry.CONTENT_URI,
+                new String[]{PlacesContract.PlacesEntry.COLUMN_PLACE_NAME, PlacesContract.PlacesEntry._ID},
+                null,
+                null,
+                null
+        );
     }
 
     @Override

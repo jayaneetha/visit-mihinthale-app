@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
+
+import net.brightron.jayaneetha.visitmihinthale.MainActivity;
 
 /**
  * Created by Admin on 3/11/15.
@@ -14,6 +17,7 @@ import android.net.Uri;
 public class PlacesProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private PlacesDbHelper mOpenHelper;
+    private final String LOG_TAG = PlacesProvider.class.getSimpleName();
 
     private static final int PLACES = 100;
     private static final int PLACE = 101;
@@ -23,12 +27,12 @@ public class PlacesProvider extends ContentProvider {
         final String authority = PlacesContract.CONTENT_AUTHORITY;
 
         uriMatcher.addURI(authority, PlacesContract.PATH_PLACES, PLACES);
-        uriMatcher.addURI(authority, PlacesContract.PATH_PLACES + "/#", PLACE);
+        uriMatcher.addURI(authority, PlacesContract.PATH_PLACE + "/#", PLACE);
 
         return uriMatcher;
     }
 
-    private static final String sPlaceSelection = PlacesContract.PlacesEntry.TABLE_NAME + "." + PlacesContract.PlacesEntry._ID + " = ?";
+    private static final String sPlaceSelection = PlacesContract.PlacesEntry.TABLE_NAME + "." + PlacesContract.PlacesEntry._ID + " = ? ";
 
     @Override
     public boolean onCreate() {
@@ -52,11 +56,15 @@ public class PlacesProvider extends ContentProvider {
                 );
                 break;
             case PLACE:
+                Log.v(LOG_TAG, "PLACE " + uri);
+
+                String placeID = PlacesContract.PlacesEntry.getPlaceIdFromUri(uri);
+                Log.v(LOG_TAG, "PlaceID :" + placeID);
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PlacesContract.PlacesEntry.TABLE_NAME,
                         projection,
                         sPlaceSelection,
-                        selectionArgs,
+                        new String[]{placeID},
                         null,
                         null,
                         sortOrder

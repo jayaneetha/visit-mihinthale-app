@@ -13,9 +13,11 @@ public class PlacesContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_PLACES = "places";
+    public static final String PATH_PLACE = "place";
 
     public static final class PlacesEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build();
+        public static final Uri CONTENT_URI_PLACE = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACE).build();
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PLACES;
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PLACES;
 
@@ -31,12 +33,11 @@ public class PlacesContract {
         }
 
         public static Uri buildPlaceUri(long _id) {
-            return CONTENT_URI.buildUpon().
-                    appendQueryParameter(PlacesContract.PlacesEntry._ID, Long.toString(_id)).build();
+            return CONTENT_URI_PLACE.buildUpon().appendPath(Long.toString(_id)).build();
         }
 
         public static String getPlaceIdFromUri(Uri uri) {
-            return uri.getQueryParameter(PlacesEntry._ID);
+            return uri.getPathSegments().get(1);
         }
 
     }
