@@ -34,7 +34,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     private static final int DETAIL_LOADER = 0;
-    static final String DETAIL_URI = "URI";
+    /*static final String DETAIL_URI = "URI";*/
+    static final String DETAIL_URI = "DFTAG";
     private String mText;
     private static final String SHARE_HASHTAG = " #VisitMihinthale";
     private String GEO_COORD = "geo:0,0";
@@ -124,13 +125,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
-        }
-        /*Log.v(LOG_TAG, "OnCreateView");*/
-
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         final Button openMap = (Button) rootView.findViewById(R.id.open_map);
         openMap.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +133,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 openPlaceMap();
             }
         });
-        /*View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        Log.v(LOG_TAG, "KKKKKKKKKKK");
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+            Log.v(LOG_TAG, "wwwwwwWWWW");
+        }
+        Intent intent = getActivity().getIntent();
+        if (intent != null) {
+            Log.v(LOG_TAG, "QQQQQQQQQ");
+            mUri = Uri.parse(intent.getDataString());
+
+        }
+        /*Log.v(LOG_TAG, "OnCreateView");
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
         if(intent!=null){
             mText = intent.getDataString();

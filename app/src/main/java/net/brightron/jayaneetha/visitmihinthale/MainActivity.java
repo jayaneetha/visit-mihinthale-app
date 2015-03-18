@@ -17,7 +17,7 @@ import net.brightron.jayaneetha.visitmihinthale.database.PlacesDbHelper;
 public class MainActivity extends ActionBarActivity implements FragmentMain.Callback {
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
-    private static boolean mTwoPane;
+    public static boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +40,7 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
         } else {
             mTwoPane = false;
         }
+
 /*
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
