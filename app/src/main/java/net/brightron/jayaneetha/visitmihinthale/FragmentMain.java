@@ -2,7 +2,6 @@ package net.brightron.jayaneetha.visitmihinthale;
 
 import android.app.LoaderManager;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,10 +20,13 @@ import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
  */
 public class FragmentMain extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    static final int COL_PLACE_ID = 0;
+    static final int COL_PLACE_NAME = 1;
+    static final int COL_PLACE_COORD_LAT = 2;
+    static final int COL_PLACE_COORD_LONG = 3;
+    static final int COL_PLACE_DESCRIPTION = 4;
+    static final int COL_PLACE_IMAGE_SRC = 5;
     private static final int LOADER = 0;
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
-
-
     private static final String[] PLACES_COLUMNS = {
             PlacesContract.PlacesEntry.TABLE_NAME + "." + PlacesContract.PlacesEntry._ID,
             PlacesContract.PlacesEntry.COLUMN_PLACE_NAME,
@@ -33,24 +35,13 @@ public class FragmentMain extends Fragment implements LoaderManager.LoaderCallba
             PlacesContract.PlacesEntry.COLUMN_DESCRIPTION,
             PlacesContract.PlacesEntry.COLUMN_IMAGE_SRC
     };
-
-    static final int COL_PLACE_ID = 0;
-    static final int COL_PLACE_NAME = 1;
-    static final int COL_PLACE_COORD_LAT = 2;
-    static final int COL_PLACE_COORD_LONG = 3;
-    static final int COL_PLACE_DESCRIPTION = 4;
-    static final int COL_PLACE_IMAGE_SRC = 5;
-
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
     //ArrayAdapter<String> mArrayAdapter;
     PlacesAdapter mPlacesAdapter;
 
     public FragmentMain() {
 
 
-    }
-
-    public interface Callback {
-        public void onItemSelected(Uri uri);
     }
 
     @Override
@@ -115,5 +106,9 @@ public class FragmentMain extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mPlacesAdapter.swapCursor(null);
+    }
+
+    public interface Callback {
+        public void onItemSelected(Uri uri);
     }
 }

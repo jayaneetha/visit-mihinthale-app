@@ -4,14 +4,15 @@ package net.brightron.jayaneetha.visitmihinthale;
  * Created by Admin on 3/13/15.
  */
 
-import android.content.CursorLoader;
+
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
@@ -24,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.app.LoaderManager;
 
 import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 
@@ -33,17 +33,17 @@ import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
  */
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final String LOG_TAG = DetailFragment.class.getSimpleName();
-    private static final int DETAIL_LOADER = 0;
     /*static final String DETAIL_URI = "URI";*/
     static final String DETAIL_URI = "DFTAG";
-    private String mText;
+    static final int COL_PLACE_ID = 0;
+    static final int COL_PLACE_NAME = 1;
+    static final int COL_PLACE_COORD_LAT = 2;
+    static final int COL_PLACE_COORD_LONG = 3;
+    static final int COL_PLACE_DESCRIPTION = 4;
+    static final int COL_PLACE_IMAGE_SRC = 5;
+    private static final int DETAIL_LOADER = 0;
     private static final String SHARE_HASHTAG = " #VisitMihinthale";
-    private String GEO_COORD = "geo:0,0";
-    private Uri mUri;
-
-    private ShareActionProvider mShareActionProvider;
-
+    private final String LOG_TAG = DetailFragment.class.getSimpleName();
     private final String[] PLACES_COLUMNS = {
             PlacesContract.PlacesEntry.TABLE_NAME + "." + PlacesContract.PlacesEntry._ID,
             PlacesContract.PlacesEntry.COLUMN_PLACE_NAME,
@@ -52,13 +52,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             PlacesContract.PlacesEntry.COLUMN_DESCRIPTION,
             PlacesContract.PlacesEntry.COLUMN_IMAGE_SRC
     };
-
-    static final int COL_PLACE_ID = 0;
-    static final int COL_PLACE_NAME = 1;
-    static final int COL_PLACE_COORD_LAT = 2;
-    static final int COL_PLACE_COORD_LONG = 3;
-    static final int COL_PLACE_DESCRIPTION = 4;
-    static final int COL_PLACE_IMAGE_SRC = 5;
+    private String mText;
+    private String GEO_COORD = "geo:0,0";
+    private Uri mUri;
+    private ShareActionProvider mShareActionProvider;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -70,7 +67,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             String placeId = PlacesContract.PlacesEntry.getPlaceIdFromUri(uri);
             Uri updatedUri = PlacesContract.PlacesEntry.buildPlaceUri(_id);
             mUri = updatedUri;
-            getLoaderManager().restartLoader(DETAIL_LOADER, null, null);
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
 
     }
@@ -100,20 +97,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, null);
+        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
 
         super.onActivityCreated(savedInstanceState);
 
     }
 
     public void openPlaceMap() {
-            /*Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
-                    .appendQueryParameter("q", GEO_COORD).build();*/
+
         Uri geoLocation = Uri.parse(GEO_COORD);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(geoLocation);
-
-       /* Log.v(LOG_TAG, "GEO LoACTIO" + geoLocation.toString());*/
 
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivity(intent);
@@ -136,35 +130,31 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         });
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
+        /*if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
         } else {
-            /*Intent intent = getActivity().getIntent();
+            Intent intent = getActivity().getIntent();
             if (intent != null) {
                 mUri = Uri.parse(intent.getDataString());
-            }*/
+            }
+        }*/
+
+        if (MainActivity.mTwoPane) {
+            if (arguments != null) {
+                mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+            }
+        } else {
+            Intent intent = getActivity().getIntent();
+            if (intent != null) {
+                mUri = Uri.parse(intent.getDataString());
+            }
         }
-        /*Log.v(LOG_TAG, "OnCreateView");
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        Intent intent = getActivity().getIntent();
-        if(intent!=null){
-            mText = intent.getDataString();
-            TextView textView = (TextView)rootView.findViewById(R.id.detail_textview);
-            textView.setText(mText);
-        }
-        return rootView;*/
         return rootView;
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        /*Log.v(LOG_TAG,"OnCreateLoader");*/
+    public android.support.v4.content.Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
-        /*Intent intent = getActivity().getIntent();
-        if(intent==null || intent.getData() == null) {
-            return null;
-        }
-        Log.v(LOG_TAG,intent.getData().toString());*/
         if (null != mUri) {
             return new CursorLoader(
                     getActivity(),
@@ -179,8 +169,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-         /*Log.v(LOG_TAG,"onLoadFinished");*/
+    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
         if (!cursor.moveToFirst()) {
             return;
         }
@@ -204,7 +193,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
 
     }
 
@@ -225,7 +214,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
         return resID;
     }
-
 
 
 }
