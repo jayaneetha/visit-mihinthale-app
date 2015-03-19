@@ -63,16 +63,16 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+//        int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             return true;
         }
         if (id == R.id.action_test_insert) {
-            /*long _id = addPlace("Two", 89.0, 8.4, "dere");*/
-            /*Log.v(LOG_TAG, "TEXT " + _id);*/
-        }
+            *//*long _id = addPlace("Two", 89.0, 8.4, "dere");*//*
+            *//*Log.v(LOG_TAG, "TEXT " + _id);*//*
+        }*/
 
         return super.onOptionsItemSelected(item);
     }

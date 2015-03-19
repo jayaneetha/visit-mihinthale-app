@@ -4,14 +4,14 @@ package net.brightron.jayaneetha.visitmihinthale;
  * Created by Admin on 3/13/15.
  */
 
+import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.app.LoaderManager;
 
 import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 
@@ -69,7 +70,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             String placeId = PlacesContract.PlacesEntry.getPlaceIdFromUri(uri);
             Uri updatedUri = PlacesContract.PlacesEntry.buildPlaceUri(_id);
             mUri = updatedUri;
-            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, null);
         }
 
     }
@@ -99,7 +100,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(DETAIL_LOADER, null, null);
 
         super.onActivityCreated(savedInstanceState);
 
@@ -134,18 +135,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             }
         });
 
-        Log.v(LOG_TAG, "KKKKKKKKKKK");
-
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
-            Log.v(LOG_TAG, "wwwwwwWWWW");
-        }
-        Intent intent = getActivity().getIntent();
-        if (intent != null) {
-            Log.v(LOG_TAG, "QQQQQQQQQ");
-            mUri = Uri.parse(intent.getDataString());
-
+        } else {
+            /*Intent intent = getActivity().getIntent();
+            if (intent != null) {
+                mUri = Uri.parse(intent.getDataString());
+            }*/
         }
         /*Log.v(LOG_TAG, "OnCreateView");
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -160,7 +157,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public android.support.v4.content.Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         /*Log.v(LOG_TAG,"OnCreateLoader");*/
 
         /*Intent intent = getActivity().getIntent();
@@ -169,7 +166,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
         Log.v(LOG_TAG,intent.getData().toString());*/
         if (null != mUri) {
-            return new android.support.v4.content.CursorLoader(
+            return new CursorLoader(
                     getActivity(),
                     mUri,
                     PLACES_COLUMNS,
@@ -182,8 +179,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
-        /*Log.v(LOG_TAG,"onLoadFinished");*/
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+         /*Log.v(LOG_TAG,"onLoadFinished");*/
         if (!cursor.moveToFirst()) {
             return;
         }
@@ -206,6 +203,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         detailImage.setImageResource(getImageResource(image_src));
     }
 
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+
+    }
+
     int getImageResource(String image_src) {
         int resID;
         switch (image_src) {
@@ -224,10 +226,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return resID;
     }
 
-    @Override
-    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-
-    }
 
 
 }
