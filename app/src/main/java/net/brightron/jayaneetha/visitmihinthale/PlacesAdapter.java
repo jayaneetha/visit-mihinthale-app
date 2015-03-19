@@ -16,14 +16,6 @@ public class PlacesAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
-    public static class ViewHolder {
-        public final TextView textView;
-
-        public ViewHolder(View view) {
-            this.textView = (TextView) view.findViewById(R.id.list_item_textview);
-        }
-    }
-
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_main, viewGroup, false);
@@ -38,5 +30,13 @@ public class PlacesAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         String placeName = cursor.getString(FragmentMain.COL_PLACE_NAME);
         viewHolder.textView.setText(placeName);
+    }
+
+    public static class ViewHolder {
+        public final TextView textView;
+
+        public ViewHolder(View view) {
+            this.textView = (TextView) view.findViewById(R.id.list_item_textview);
+        }
     }
 }
