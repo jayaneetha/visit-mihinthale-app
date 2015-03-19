@@ -34,14 +34,6 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
         } else {
             mTwoPane = false;
         }
-
-/*
-        setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new FragmentMain())
-                    .commit();
-        }*/
     }
 
 
