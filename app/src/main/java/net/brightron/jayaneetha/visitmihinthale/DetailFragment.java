@@ -7,8 +7,12 @@ package net.brightron.jayaneetha.visitmihinthale;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -28,6 +32,10 @@ import android.widget.TextView;
 
 import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -43,6 +51,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final int COL_PLACE_IMAGE_SRC = 5;
     private static final int DETAIL_LOADER = 0;
     private static final String SHARE_HASHTAG = " #VisitMihinthale";
+    private static final String SHARE_TITLE = "Visit Mihinthale";
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     private final String[] PLACES_COLUMNS = {
             PlacesContract.PlacesEntry.TABLE_NAME + "." + PlacesContract.PlacesEntry._ID,
@@ -56,6 +65,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private String GEO_COORD = "geo:0,0";
     private Uri mUri;
     private ShareActionProvider mShareActionProvider;
+
+    private TextView mPlaceName;
+    private ImageView mImage;
+    private TextView mDescription;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -81,24 +94,66 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         if (mText != null) {
-            mShareActionProvider.setShareIntent(createShareForecastIntent());
+            mShareActionProvider.setShareIntent(createImageShareIntent());
         }
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private Intent createShareForecastIntent() {
+    /*private Intent createShareIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, mText + SHARE_HASHTAG);
         return shareIntent;
+    }*/
+
+    private Intent createImageShareIntent() {
+
+        ImageView imageView = (ImageView) getView().findViewById(R.id.detail_image);
+        Uri imageUri = getLocalBitmapUri(imageView);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mText + SHARE_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, SHARE_TITLE);
+        if (imageUri != null) {
+            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+            shareIntent.setType("image/*");
+        } else {
+            shareIntent.setType("text/plain");
+        }
+        return shareIntent;
+    }
+
+    // Returns the URI path to the Bitmap displayed in specified ImageView
+    //Referred from : https://guides.codepath.com/android/Sharing-Content-with-Intents
+    public Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp = null;
+        if (drawable instanceof BitmapDrawable) {
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            File file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
+            file.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-
         super.onActivityCreated(savedInstanceState);
 
     }
@@ -130,14 +185,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         });
 
         Bundle arguments = getArguments();
-        /*if (arguments != null) {
-            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
-        } else {
-            Intent intent = getActivity().getIntent();
-            if (intent != null) {
-                mUri = Uri.parse(intent.getDataString());
-            }
-        }*/
 
         if (MainActivity.mTwoPane) {
             if (arguments != null) {
@@ -146,9 +193,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         } else {
             Intent intent = getActivity().getIntent();
             if (intent != null) {
-                mUri = Uri.parse(intent.getDataString());
+                mUri = intent.getData();
             }
         }
+
+        mPlaceName = (TextView) rootView.findViewById(R.id.detail_place_name);
+        mImage = (ImageView) rootView.findViewById(R.id.detail_image);
+        mDescription = (TextView) rootView.findViewById(R.id.detail_place_description);
+
         return rootView;
     }
 
@@ -170,26 +222,26 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
-        if (!cursor.moveToFirst()) {
-            return;
+        if (cursor != null && cursor.moveToFirst()) {
+
+            String place_name = cursor.getString(COL_PLACE_NAME);
+            String description = cursor.getString(COL_PLACE_DESCRIPTION);
+            long coord_long = cursor.getLong(COL_PLACE_COORD_LONG);
+            long coord_lat = cursor.getLong(COL_PLACE_COORD_LAT);
+            String image_src = cursor.getString(COL_PLACE_IMAGE_SRC);
+
+            mText = "I'm at " + place_name;
+            GEO_COORD = "geo:" + Long.toString(coord_lat) + "," + Long.toString(coord_long);
+
+            mPlaceName.setText(place_name);
+            mImage.setImageResource(getImageResource(image_src));
+            mDescription.setText(description);
+
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createImageShareIntent());
+            }
         }
-        String place_name = cursor.getString(COL_PLACE_NAME);
-        String description = cursor.getString(COL_PLACE_DESCRIPTION);
-        long coord_long = cursor.getLong(COL_PLACE_COORD_LONG);
-        long coord_lat = cursor.getLong(COL_PLACE_COORD_LAT);
-        String image_src = cursor.getString(COL_PLACE_IMAGE_SRC);
 
-        mText = "I'm at " + place_name;
-        GEO_COORD = "geo:" + Long.toString(coord_lat) + "," + Long.toString(coord_long);
-
-        TextView placeNameTV = (TextView) getView().findViewById(R.id.detail_place_name);
-        placeNameTV.setText(place_name);
-
-        TextView descriptionTV = (TextView) getView().findViewById(R.id.detail_place_description);
-        descriptionTV.setText(description);
-
-        ImageView detailImage = (ImageView) getView().findViewById(R.id.detail_image);
-        detailImage.setImageResource(getImageResource(image_src));
     }
 
     @Override

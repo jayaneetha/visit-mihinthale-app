@@ -4,14 +4,26 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
+
 
 public class MainActivity extends ActionBarActivity implements FragmentMain.Callback {
-    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public static final String DETAILFRAGMENT_TAG = "DFTAG";
     public static boolean mTwoPane;
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static boolean rotate = false;
+    private static Uri selected_uri = PlacesContract.DEFAULT_URI;
+
+    @Override
+    protected void onDestroy() {
+        rotate = true;
+        super.onDestroy();
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
         } else {
             mTwoPane = false;
         }
+
     }
 
 
@@ -61,6 +74,11 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -69,10 +87,28 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
             df.onPlaceChanged(1);
         }
 
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, selected_uri);
+
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment, DETAILFRAGMENT_TAG).commit();
+
+        } else {
+            if (rotate) {
+                Intent intent = new Intent(this, DetailActivity.class).setData(selected_uri);
+                startActivity(intent);
+                rotate = false;
+            }
+        }
+
     }
 
     @Override
     public void onItemSelected(Uri uri) {
+        selected_uri = uri;
         if (mTwoPane) {
             Bundle args = new Bundle();
             args.putParcelable(DetailFragment.DETAIL_URI, uri);
@@ -87,4 +123,6 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
             startActivity(intent);
         }
     }
+
+
 }

@@ -1,21 +1,33 @@
 package net.brightron.jayaneetha.visitmihinthale;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 public class DetailActivity extends ActionBarActivity {
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.detail_container, new DetailFragment())
+                    .add(R.id.detail_container, fragment)
                     .commit();
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         }
     }
 

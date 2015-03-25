@@ -12,8 +12,11 @@ public class PlacesContract {
     public static final String CONTENT_AUTHORITY = "net.brightron.jayaneetha.visitmihinthale";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
+
     public static final String PATH_PLACES = "places";
     public static final String PATH_PLACE = "place";
+
+    public static final Uri DEFAULT_URI = Uri.parse("content://" + CONTENT_AUTHORITY + "/" + PATH_PLACE + "/1");
 
     public static final class PlacesEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build();
