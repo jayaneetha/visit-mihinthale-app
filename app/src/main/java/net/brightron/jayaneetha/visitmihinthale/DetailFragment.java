@@ -57,6 +57,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private Uri mUri;
     private ShareActionProvider mShareActionProvider;
 
+    private TextView mPlaceName;
+    private ImageView mImage;
+    private TextView mDescription;
+
     public DetailFragment() {
         setHasOptionsMenu(true);
     }
@@ -81,13 +85,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         if (mText != null) {
-            mShareActionProvider.setShareIntent(createShareForecastIntent());
+            mShareActionProvider.setShareIntent(createShareIntent());
         }
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private Intent createShareForecastIntent() {
+    private Intent createShareIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
@@ -98,7 +102,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-
         super.onActivityCreated(savedInstanceState);
 
     }
@@ -146,9 +149,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         } else {
             Intent intent = getActivity().getIntent();
             if (intent != null) {
-                mUri = Uri.parse(intent.getDataString());
+                mUri = intent.getData();
+                //mUri = Uri.parse("content://net.brightron.jayaneetha.visitmihinthale/place/2");
             }
         }
+
+        mPlaceName = (TextView) rootView.findViewById(R.id.detail_place_name);
+        mImage = (ImageView) rootView.findViewById(R.id.detail_image);
+        mDescription = (TextView) rootView.findViewById(R.id.detail_place_description);
+
         return rootView;
     }
 
@@ -170,26 +179,26 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
-        if (!cursor.moveToFirst()) {
-            return;
+        if (cursor != null && cursor.moveToFirst()) {
+
+            String place_name = cursor.getString(COL_PLACE_NAME);
+            String description = cursor.getString(COL_PLACE_DESCRIPTION);
+            long coord_long = cursor.getLong(COL_PLACE_COORD_LONG);
+            long coord_lat = cursor.getLong(COL_PLACE_COORD_LAT);
+            String image_src = cursor.getString(COL_PLACE_IMAGE_SRC);
+
+            mText = "I'm at " + place_name;
+            GEO_COORD = "geo:" + Long.toString(coord_lat) + "," + Long.toString(coord_long);
+
+            mPlaceName.setText(place_name);
+            mImage.setImageResource(getImageResource(image_src));
+            mDescription.setText(description);
+
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createShareIntent());
+            }
         }
-        String place_name = cursor.getString(COL_PLACE_NAME);
-        String description = cursor.getString(COL_PLACE_DESCRIPTION);
-        long coord_long = cursor.getLong(COL_PLACE_COORD_LONG);
-        long coord_lat = cursor.getLong(COL_PLACE_COORD_LAT);
-        String image_src = cursor.getString(COL_PLACE_IMAGE_SRC);
 
-        mText = "I'm at " + place_name;
-        GEO_COORD = "geo:" + Long.toString(coord_lat) + "," + Long.toString(coord_long);
-
-        TextView placeNameTV = (TextView) getView().findViewById(R.id.detail_place_name);
-        placeNameTV.setText(place_name);
-
-        TextView descriptionTV = (TextView) getView().findViewById(R.id.detail_place_description);
-        descriptionTV.setText(description);
-
-        ImageView detailImage = (ImageView) getView().findViewById(R.id.detail_image);
-        detailImage.setImageResource(getImageResource(image_src));
     }
 
     @Override
