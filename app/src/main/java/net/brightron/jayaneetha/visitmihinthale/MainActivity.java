@@ -12,7 +12,7 @@ import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 
 
 public class MainActivity extends ActionBarActivity implements FragmentMain.Callback {
-    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public static final String DETAILFRAGMENT_TAG = "DFTAG";
     public static boolean mTwoPane;
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static boolean rotate = false;

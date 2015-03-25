@@ -133,14 +133,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         });
 
         Bundle arguments = getArguments();
-        /*if (arguments != null) {
-            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
-        } else {
-            Intent intent = getActivity().getIntent();
-            if (intent != null) {
-                mUri = Uri.parse(intent.getDataString());
-            }
-        }*/
 
         if (MainActivity.mTwoPane) {
             if (arguments != null) {
@@ -150,7 +142,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             Intent intent = getActivity().getIntent();
             if (intent != null) {
                 mUri = intent.getData();
-                //mUri = Uri.parse("content://net.brightron.jayaneetha.visitmihinthale/place/2");
             }
         }
 
