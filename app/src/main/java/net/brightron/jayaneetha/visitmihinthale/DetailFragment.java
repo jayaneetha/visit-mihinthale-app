@@ -7,8 +7,12 @@ package net.brightron.jayaneetha.visitmihinthale;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -28,6 +32,10 @@ import android.widget.TextView;
 
 import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -43,6 +51,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final int COL_PLACE_IMAGE_SRC = 5;
     private static final int DETAIL_LOADER = 0;
     private static final String SHARE_HASHTAG = " #VisitMihinthale";
+    private static final String SHARE_TITLE = "Visit Mihinthale";
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     private final String[] PLACES_COLUMNS = {
             PlacesContract.PlacesEntry.TABLE_NAME + "." + PlacesContract.PlacesEntry._ID,
@@ -85,18 +94,61 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         if (mText != null) {
-            mShareActionProvider.setShareIntent(createShareIntent());
+            mShareActionProvider.setShareIntent(createImageShareIntent());
         }
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private Intent createShareIntent() {
+    /*private Intent createShareIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, mText + SHARE_HASHTAG);
         return shareIntent;
+    }*/
+
+    private Intent createImageShareIntent() {
+
+        ImageView imageView = (ImageView) getView().findViewById(R.id.detail_image);
+        Uri imageUri = getLocalBitmapUri(imageView);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mText + SHARE_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, SHARE_TITLE);
+        if (imageUri != null) {
+            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+            shareIntent.setType("image/*");
+        } else {
+            shareIntent.setType("text/plain");
+        }
+        return shareIntent;
+    }
+
+    // Returns the URI path to the Bitmap displayed in specified ImageView
+    //Referred from : https://guides.codepath.com/android/Sharing-Content-with-Intents
+    public Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp = null;
+        if (drawable instanceof BitmapDrawable) {
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            File file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
+            file.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
     }
 
     @Override
@@ -186,7 +238,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mDescription.setText(description);
 
             if (mShareActionProvider != null) {
-                mShareActionProvider.setShareIntent(createShareIntent());
+                mShareActionProvider.setShareIntent(createImageShareIntent());
             }
         }
 
