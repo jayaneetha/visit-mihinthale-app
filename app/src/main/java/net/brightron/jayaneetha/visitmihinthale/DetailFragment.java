@@ -159,12 +159,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public void openPlaceMap() {
-
         Uri geoLocation = Uri.parse(GEO_COORD);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(geoLocation);
 
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            MainActivity.mSavedInstance = true;
             startActivity(intent);
         } else {
             Log.d(LOG_TAG, "Couldn't call " + GEO_COORD + ", no receiving apps installed!");

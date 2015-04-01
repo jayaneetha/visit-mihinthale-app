@@ -17,6 +17,7 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static boolean rotate = false;
     private static Uri selected_uri = PlacesContract.DEFAULT_URI;
+    static boolean mSavedInstance = false;
 
     @Override
     protected void onDestroy() {
@@ -28,7 +29,6 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         if (findViewById(R.id.detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
@@ -42,11 +42,13 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
                         .commit();
+                mSavedInstance = false;
+            } else {
+                mSavedInstance = true;
             }
         } else {
             mTwoPane = false;
         }
-
     }
 
 
@@ -81,7 +83,6 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
     @Override
     protected void onResume() {
         super.onResume();
-
         DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
         if (null != df) {
             df.onPlaceChanged(1);
@@ -94,7 +95,9 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
             DetailFragment detailFragment = new DetailFragment();
             detailFragment.setArguments(args);
 
-            getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment, DETAILFRAGMENT_TAG).commit();
+            if (!mSavedInstance) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, detailFragment, DETAILFRAGMENT_TAG).commit();
+            }
 
         } else {
             if (rotate) {
