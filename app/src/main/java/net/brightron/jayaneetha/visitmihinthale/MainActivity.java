@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,10 +13,11 @@ import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 public class MainActivity extends ActionBarActivity implements FragmentMain.Callback {
     public static final String DETAILFRAGMENT_TAG = "DFTAG";
     public static boolean mTwoPane;
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    public static String connectedNetwork;
+    static boolean mSavedInstance = false;
     private static boolean rotate = false;
     private static Uri selected_uri = PlacesContract.DEFAULT_URI;
-    static boolean mSavedInstance = false;
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onDestroy() {
@@ -30,6 +30,9 @@ public class MainActivity extends ActionBarActivity implements FragmentMain.Call
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        connectedNetwork = new Util().getNetworkClass(getApplicationContext());
+
         if (findViewById(R.id.detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be

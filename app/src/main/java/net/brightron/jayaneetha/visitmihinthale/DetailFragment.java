@@ -220,6 +220,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return null;
     }
 
+
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
         if (cursor != null && cursor.moveToFirst()) {
@@ -251,18 +252,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     int getImageResource(String image_src) {
         int resID;
-        switch (image_src) {
-            case "mihinthale":
-                resID = R.drawable.mihinthale;
-                break;
-            case "kantaka-chethiya":
-                resID = R.drawable.kantaka_chethiya;
-                break;
-            case "mihinthale-hospital":
-                resID = R.drawable.mihinthale_hospital;
-                break;
-            default:
-                resID = R.drawable.mihinthale;
+        if (MainActivity.connectedNetwork.equals("3G") || MainActivity.connectedNetwork.equals("4G")) {
+            switch (image_src) {
+                case "mihinthale":
+                    resID = R.drawable.mihinthale;
+                    break;
+                case "kantaka-chethiya":
+                    resID = R.drawable.kantaka_chethiya;
+                    break;
+                case "mihinthale-hospital":
+                    resID = R.drawable.mihinthale_hospital;
+                    break;
+                default:
+                    resID = R.drawable.mihinthale;
+            }
+        } else {
+            resID = R.drawable.ic_launcher;
         }
         return resID;
     }
