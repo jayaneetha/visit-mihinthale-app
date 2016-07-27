@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.brightron.jayaneetha.visitmihinthale.database.PlacesContract;
 
@@ -159,15 +160,20 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public void openPlaceMap() {
-        Uri geoLocation = Uri.parse(GEO_COORD);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(geoLocation);
-
-        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-            MainActivity.mSavedInstance = true;
-            startActivity(intent);
+        if (MainActivity.connectedNetwork.equals("2G")) {
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "You are on a 2G Network", Toast.LENGTH_SHORT);
+            toast.show();
         } else {
-            Log.d(LOG_TAG, "Couldn't call " + GEO_COORD + ", no receiving apps installed!");
+            Uri geoLocation = Uri.parse(GEO_COORD);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(geoLocation);
+
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                MainActivity.mSavedInstance = true;
+                startActivity(intent);
+            } else {
+                Log.d(LOG_TAG, "Couldn't call " + GEO_COORD + ", no receiving apps installed!");
+            }
         }
     }
 
@@ -177,6 +183,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         final Button openMap = (Button) rootView.findViewById(R.id.open_map);
+
+
         openMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -252,7 +260,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     int getImageResource(String image_src) {
         int resID;
-        if (MainActivity.connectedNetwork.equals("3G") || MainActivity.connectedNetwork.equals("4G")) {
             switch (image_src) {
                 case "mihinthale":
                     resID = R.drawable.mihinthale;
@@ -266,9 +273,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 default:
                     resID = R.drawable.mihinthale;
             }
-        } else {
-            resID = R.drawable.ic_launcher;
-        }
+
         return resID;
     }
 
